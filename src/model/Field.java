@@ -5,9 +5,11 @@ import utilities.Utilities;
 import java.util.Arrays;
 
 public class Field {
-    private Cell[][] field;
+    private final Cell[][] field;
     private final int sideSize;
     private int filledCellsNum;
+
+    private Cell previousPlayer;
 
     public Field(int sideSize) {
         filledCellsNum = 0;
@@ -20,6 +22,11 @@ public class Field {
 
 
     public MoveReport makeMove(Cell playerNumber, int x, int y) {
+        if (playerNumber == previousPlayer){
+            return new MoveReport(MoveOutcome.WRONG_MOVE, "Now is the other's player move");
+        }
+        previousPlayer = playerNumber;
+
         String message = getErrorMessage(x, y);
         if (message != null) {
             return new MoveReport(MoveOutcome.WRONG_MOVE, message);
@@ -29,12 +36,13 @@ public class Field {
     }
 
     //returns null if no error
+    @org.jetbrains.annotations.Nullable
     private String getErrorMessage(int x, int y) {
-        if (Utilities.inRange(0, sideSize, x)) {
-            return "Out of the field!";
+        if (!Utilities.inRange(0, sideSize, x)) {
+            return "At least X out of the field!";
         }
-        if (Utilities.inRange(0, sideSize, y)) {
-            return "Out of the field!";
+        if (!Utilities.inRange(0, sideSize, y)) {
+            return "Y out of the field!";
         }
         if (field[x][y] != Cell.EMPTY) {
             return "This cell is already filled";
@@ -106,7 +114,7 @@ public class Field {
                 //second big diagonal
                 diagFilledCellsNum = 0;
                 for (int i = 0; i < sideSize; i++) {
-                    if (field[sideSize - i][i] == playerID) {
+                    if (field[sideSize - i - 1][i] == playerID) {
                         diagFilledCellsNum++;
                     }
 

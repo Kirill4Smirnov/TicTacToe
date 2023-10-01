@@ -19,9 +19,3 @@ public class MoveReport {
     }
 }
 
-enum MoveOutcome {
-    SUCCESS,
-    WRONG_MOVE,
-    VICTORY,
-    DRAW
-}
