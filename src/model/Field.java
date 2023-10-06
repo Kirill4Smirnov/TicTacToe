@@ -21,17 +21,20 @@ public class Field {
     }
 
 
-    public MoveReport makeMove(Cell playerNumber, int x, int y) {
-        if (playerNumber == previousPlayer){
-            return new MoveReport(MoveOutcome.WRONG_MOVE, "Now is the other's player move");
-        }
-        previousPlayer = playerNumber;
+    public MoveReport makeMove(int playerId, int x, int y) throws Exception {
+        Cell newPlayer = Cell.valueOf(playerId);
 
         String message = getErrorMessage(x, y);
         if (message != null) {
+            if (newPlayer == previousPlayer) {
+                return new MoveReport(MoveOutcome.WRONG_MOVE, "Now is the other's player move");
+            }
+
+
             return new MoveReport(MoveOutcome.WRONG_MOVE, message);
         } else {
-            return new MoveReport(checkMoveOutcomeAndMove(playerNumber, x, y), "");
+            previousPlayer = newPlayer;
+            return new MoveReport(checkMoveOutcomeAndMove(newPlayer, x, y), "");
         }
     }
 
@@ -52,17 +55,17 @@ public class Field {
     }
 
     private MoveOutcome checkMoveOutcomeAndMove(Cell playerID, int x, int y) {
-        if (checkVertVictory(playerID, x, y)){
+        if (checkVertVictory(playerID, x, y)) {
             return MoveOutcome.VICTORY;
         }
-        if (checkHorVictory(playerID, x, y)){
+        if (checkHorVictory(playerID, x, y)) {
             return MoveOutcome.VICTORY;
         }
-        if (checkDiagVictory(playerID, x, y)){
+        if (checkDiagVictory(playerID, x, y)) {
             return MoveOutcome.VICTORY;
         }
 
-        if (filledCellsNum == sideSize*sideSize - 1){
+        if (filledCellsNum == sideSize * sideSize - 1) {
             return MoveOutcome.DRAW;
         }
 
@@ -125,17 +128,17 @@ public class Field {
                     return false;
                 }
             }
-        } else{
+        } else {
             return false;
         }
 
     }
 
-    private int countNonEmptyCells(){
+    private int countNonEmptyCells() {
         int count = 0;
         for (int i = 0; i < sideSize; i++) {
             for (int j = 0; j < sideSize; j++) {
-                if (field[i][j] != Cell.EMPTY){
+                if (field[i][j] != Cell.EMPTY) {
                     count++;
                 }
             }
@@ -143,10 +146,47 @@ public class Field {
         return count;
     }
 
+    public int[][] getFieldCells() {
+        int[][] outfield = new int[sideSize][sideSize];
+        for (int i = 0; i < sideSize; i++) {
+            for (int j = 0; j < sideSize; j++) {
+                if (field[i][j] == Cell.EMPTY) {
+                    outfield[i][j] = 0;
+                }
+                if (field[i][j] == Cell.PLAYER1) {
+                    outfield[i][j] = 1;
+                }
+                if (field[i][j] == Cell.PLAYER2) {
+                    outfield[i][j] = 2;
+                }
+
+            }
+
+        }
+
+        return outfield;
+    }
+
     public enum Cell {
         PLAYER1,
         PLAYER2,
-        EMPTY
-    }
+        EMPTY;
 
+        static Cell valueOf(int id) throws Exception {
+            switch (id) {
+                case 0 -> {
+                    return EMPTY;
+                }
+                case 1 -> {
+                    return PLAYER1;
+                }
+                case 2 -> {
+                    return PLAYER2;
+                }
+                default -> {
+                    throw new Exception("Incorrect id");
+                }
+            }
+        }
+    }
 }
